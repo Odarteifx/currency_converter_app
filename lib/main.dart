@@ -1,5 +1,6 @@
+import 'package:currency_converter/currency.dart';
 import 'package:flutter/material.dart';
-import 'package:currency_converter/Currency.dart';
+//import 'package:currency_converter/Currency.dart';
 import 'package:currency_converter/currency_converter.dart';
 
 void main() {
@@ -32,6 +33,24 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
 
+  double _convertedAmount = 0.0;
+  @override
+  void initState() {
+    super.initState();
+    convert();
+  }
+  void convert() async {
+    Currency myCurrency = await CurrencyConverter.getMyCurrency();
+    var usdConvert = await CurrencyConverter.convert(
+      from: Currency.gbp,
+      to: myCurrency,
+      amount: 5,
+    );
+    setState(() {
+      _convertedAmount = usdConvert!;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,14 +63,22 @@ class _HomePageState extends State<HomePage> {
         itemCount: 10,
         itemBuilder: (context, index) {
           return Padding(
-            padding: const EdgeInsets.fromLTRB(15,0,15,15),
+            padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
             child: ListTile(
               minTileHeight: 60,
               tileColor: Theme.of(context)
                   .colorScheme
                   .primaryContainer
                   .withOpacity(0.5),
-              title: const Text('data'),
+                  leading: Text('flag'),
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Currency'),
+                  Text('$_convertedAmount'),
+                ],
+              ),
+              trailing: IconButton(onPressed: (){}, icon: Icon(Icons.more_vert)),
             ),
           );
         },
