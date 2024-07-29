@@ -1,7 +1,7 @@
 import 'package:currency_converter/currency.dart';
 import 'package:flutter/material.dart';
-//import 'package:currency_converter/Currency.dart';
 import 'package:currency_converter/currency_converter.dart';
+import 'package:country_icons/country_icons.dart';
 
 void main() {
   runApp(const MyApp());
@@ -32,13 +32,13 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
   double _convertedAmount = 0.0;
   @override
   void initState() {
     super.initState();
     convert();
   }
+
   void convert() async {
     Currency myCurrency = await CurrencyConverter.getMyCurrency();
     var usdConvert = await CurrencyConverter.convert(
@@ -65,12 +65,19 @@ class _HomePageState extends State<HomePage> {
           return Padding(
             padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
             child: ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 10),
               minTileHeight: 60,
-              tileColor: Theme.of(context)
-                  .colorScheme
-                  .primaryContainer
-                  .withOpacity(0.5),
-                  leading: Text('flag'),
+              tileColor: Color.alphaBlend(
+                  Theme.of(context).colorScheme.primary.withOpacity(0.08),
+                  Theme.of(context).colorScheme.surface),
+              leading: CircleAvatar(
+                radius: 30,
+                child: Image.asset(
+                  fit: BoxFit.fill,
+                  'icons/flags/png100px/gb.png',
+                  package: 'country_icons',
+                ),
+              ),
               title: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -78,7 +85,8 @@ class _HomePageState extends State<HomePage> {
                   Text('$_convertedAmount'),
                 ],
               ),
-              trailing: IconButton(onPressed: (){}, icon: Icon(Icons.more_vert)),
+              trailing:
+                  IconButton(onPressed: () {}, icon: Icon(Icons.more_vert)),
             ),
           );
         },
