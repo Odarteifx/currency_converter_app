@@ -1,6 +1,6 @@
-class Curren {
+class CurrencyC {
   final String name;
   final String value;
 
-  Curren({required this.name, required this.value});
+  CurrencyC({required this.name, required this.value});
 }

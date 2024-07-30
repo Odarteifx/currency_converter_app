@@ -2,6 +2,7 @@ import 'package:currency_converter/currency.dart';
 import 'package:flutter/material.dart';
 import 'package:currency_converter/currency_converter.dart';
 import 'package:country_icons/country_icons.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() {
   runApp(const MyApp());
@@ -24,27 +25,33 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class HomePage extends StatefulWidget {
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  ConsumerState<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends ConsumerState<HomePage> {
   double _convertedAmount = 0.0;
+  late TextEditingController inputController = TextEditingController();
+  late  TextEditingController amountcontroller;
   @override
   void initState() {
     super.initState();
+    inputController = TextEditingController();
+    amountcontroller = TextEditingController(text: '$_convertedAmount');
     convert();
   }
 
+  late Currency x;
+  
   void convert() async {
     Currency myCurrency = await CurrencyConverter.getMyCurrency();
     var usdConvert = await CurrencyConverter.convert(
-      from: Currency.gbp,
+      from: Currency.btc,
       to: myCurrency,
-      amount: 5,
+      amount: double.tryParse(inputController.text) ?? 0.0,
     );
     setState(() {
       _convertedAmount = usdConvert!;
@@ -53,43 +60,67 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(onPressed: () {}, icon: const Icon(Icons.add)),
         title: const Text('Converter'),
         actions: [IconButton(onPressed: () {}, icon: const Icon(Icons.edit))],
       ),
-      body: ListView.builder(
-        itemCount: 10,
-        itemBuilder: (context, index) {
-          return Padding(
-            padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
-            child: ListTile(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-              minTileHeight: 60,
-              tileColor: Color.alphaBlend(
-                  Theme.of(context).colorScheme.primary.withOpacity(0.08),
-                  Theme.of(context).colorScheme.surface),
-              leading: CircleAvatar(
-                radius: 30,
-                child: Image.asset(
-                  fit: BoxFit.fill,
-                  'icons/flags/png100px/gb.png',
-                  package: 'country_icons',
-                ),
+      body: Column(
+        children: [
+           Padding(
+            padding: const EdgeInsets.fromLTRB(15, 15, 15, 15),
+            child: TextField(
+              controller: inputController,
+              decoration: const InputDecoration(border: OutlineInputBorder(),
+              hintText: 'Enter Amount'
               ),
-              title: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Currency'),
-                  Text('$_convertedAmount'),
-                ],
-              ),
-              trailing:
-                  IconButton(onPressed: () {}, icon: Icon(Icons.more_vert)),
+              keyboardType: TextInputType.number,
+              onChanged: (value) {
+                convert();
+              },
             ),
-          );
-        },
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: 1,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+                  //  minVerticalPadding: 10,
+                    tileColor: Color.alphaBlend(
+                        Theme.of(context).colorScheme.primary.withOpacity(0.08),
+                        Theme.of(context).colorScheme.surface),
+                    leading: Image.asset(
+                      width: 35,
+                      'icons/flags/png100px/gh.png',
+                      package: 'country_icons',
+                    ),
+                    title: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('Currency'),
+                        Expanded(child: TextField(
+                          textAlign: TextAlign.end,
+                          controller: amountcontroller,
+                          decoration: const InputDecoration(
+                            border: InputBorder.none,
+                          ),
+                          keyboardType: TextInputType.number,
+                        )),
+                      ],
+                    ),
+                    trailing: IconButton(
+                        onPressed: () {}, icon: const Icon(Icons.more_vert)),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
