@@ -34,14 +34,25 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<HomePage> {
-  late TextEditingController inputController = TextEditingController(text: '6');
-  late TextEditingController amountcontroller = TextEditingController(
-      text: ref.watch(currencyProvider).convertAmount.toString());
+  late TextEditingController inputController;
+
   @override
+  void initState() {
+    super.initState();
+    inputController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    inputController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final currencyNotifier = ref.watch(currencyProvider);
     final currencies = currencyNotifier.currencieslist;
+    final convertedAmounts = currencyNotifier.convertedAmounts;
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(onPressed: () {}, icon: const Icon(Icons.add)),
@@ -57,13 +68,18 @@ class _HomePageState extends ConsumerState<HomePage> {
               decoration: const InputDecoration(
                   border: OutlineInputBorder(), hintText: 'Enter Amount'),
               keyboardType: TextInputType.number,
-              onChanged: (value) {},
+              onChanged: (value) {
+                double amount = double.tryParse(value) ?? 0.0;
+                currencyNotifier.convert(amount, Currency.usd);
+              },
             ),
           ),
           Expanded(
             child: ListView.builder(
               itemCount: currencies.length,
               itemBuilder: (context, index) {
+                final currency = currencies[index];
+                final convertedAmount = convertedAmounts[currency.code] ?? 0.0;
                 return Padding(
                   padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
                   child: ListTile(
@@ -74,22 +90,16 @@ class _HomePageState extends ConsumerState<HomePage> {
                         Theme.of(context).colorScheme.surface),
                     leading: Image.asset(
                       width: 35,
-                      'icons/flags/png100px/gh.png',
+                      'icons/flags/png100px/${currency.code}.png',
                       package: 'country_icons',
                     ),
                     title: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('Currency'),
-                        Expanded(
-                            child: TextField(
-                          textAlign: TextAlign.end,
-                          controller: amountcontroller,
-                          decoration: const InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          keyboardType: TextInputType.number,
-                        )),
+                        Text(currency.name),
+                        const Expanded(child: SizedBox()),
+                        Text(
+                          convertedAmount.toStringAsFixed(2),
+                        )
                       ],
                     ),
                     trailing: IconButton(

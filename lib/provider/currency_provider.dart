@@ -8,25 +8,28 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class CurrencyNotifier extends ChangeNotifier {
   List<CurrencyC> get currencieslist => currencies;
 
-  
+  Map<String, double> _convertedAmounts = {};
+  Map<String, double> get convertedAmounts => _convertedAmounts;
 
-  double _convertedAmount = 0.0;
-
-  double get convertAmount => _convertedAmount;
-  
-  void convert(double amount, Currency currency, Currency newcurrency) async {
+  void convert(double amount, Currency fromcurrency) async {
     //Currency myCurrency = await CurrencyConverter.getMyCurrency();
-    var usdConvert = await CurrencyConverter.convert(
-      from: currency,
-      to: newcurrency,
-      amount: amount,
-    );
-    _convertedAmount = usdConvert ?? 0.0;
+    try {
+      for (var currency in currencies) {
+        var converted = await CurrencyConverter.convert(
+          from: fromcurrency,
+          to: currency.currency,
+          amount: amount,
+        );
+        _convertedAmounts[currency.code] = converted ?? 0.0;
+      }
+    } catch (e) {
+       // ignore: avoid_print
+       print('Error converting currency: $e');
+    }
     notifyListeners();
   }
-
 }
 
-final currencyProvider = ChangeNotifierProvider((ref){
+final currencyProvider = ChangeNotifierProvider((ref) {
   return CurrencyNotifier();
 });
