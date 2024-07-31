@@ -1,6 +1,8 @@
-class CurrencyC {
-  final String name;
-  final String value;
+import 'package:currency_converter/currency.dart';
 
-  CurrencyC({required this.name, required this.value});
+class CurrencyC {
+  
+  final Currency newcurency;
+
+  CurrencyC({required this.newcurency});
 }

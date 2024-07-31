@@ -1,18 +1,24 @@
 import 'package:currency_converter/currency.dart';
 import 'package:currency_converter/currency_converter.dart';
+import 'package:currency_converter_app/data/data.dart';
 import 'package:currency_converter_app/model/models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class CurrencyNotifier extends ChangeNotifier {
-  List<CurrencyC> currencies = [];
-  double _convertedAmount = 0.0;
+  List<CurrencyC> get currencieslist => currencies;
+
   
-  void convert(double amount) async {
-    Currency myCurrency = await CurrencyConverter.getMyCurrency();
+
+  double _convertedAmount = 0.0;
+
+  double get convertAmount => _convertedAmount;
+  
+  void convert(double amount, Currency currency, Currency newcurrency) async {
+    //Currency myCurrency = await CurrencyConverter.getMyCurrency();
     var usdConvert = await CurrencyConverter.convert(
-      from: Currency.btc,
-      to: myCurrency,
+      from: currency,
+      to: newcurrency,
       amount: amount,
     );
     _convertedAmount = usdConvert ?? 0.0;
@@ -22,5 +28,5 @@ class CurrencyNotifier extends ChangeNotifier {
 }
 
 final currencyProvider = ChangeNotifierProvider((ref){
-  CurrencyNotifier;
+  return CurrencyNotifier();
 });

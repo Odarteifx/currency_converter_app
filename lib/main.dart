@@ -1,11 +1,12 @@
 import 'package:currency_converter/currency.dart';
+import 'package:currency_converter_app/provider/currency_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:currency_converter/currency_converter.dart';
 import 'package:country_icons/country_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -33,34 +34,14 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<HomePage> {
-  double _convertedAmount = 0.0;
-  late TextEditingController inputController = TextEditingController();
-  late  TextEditingController amountcontroller;
+  late TextEditingController inputController = TextEditingController(text: '6');
+  late TextEditingController amountcontroller = TextEditingController(
+      text: ref.watch(currencyProvider).convertAmount.toString());
   @override
-  void initState() {
-    super.initState();
-    inputController = TextEditingController();
-    amountcontroller = TextEditingController(text: '$_convertedAmount');
-    convert();
-  }
-
-  late Currency x;
-  
-  void convert() async {
-    Currency myCurrency = await CurrencyConverter.getMyCurrency();
-    var usdConvert = await CurrencyConverter.convert(
-      from: Currency.btc,
-      to: myCurrency,
-      amount: double.tryParse(inputController.text) ?? 0.0,
-    );
-    setState(() {
-      _convertedAmount = usdConvert!;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    
+    final currencyNotifier = ref.watch(currencyProvider);
+    final currencies = currencyNotifier.currencieslist;
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(onPressed: () {}, icon: const Icon(Icons.add)),
@@ -69,28 +50,25 @@ class _HomePageState extends ConsumerState<HomePage> {
       ),
       body: Column(
         children: [
-           Padding(
+          Padding(
             padding: const EdgeInsets.fromLTRB(15, 15, 15, 15),
             child: TextField(
               controller: inputController,
-              decoration: const InputDecoration(border: OutlineInputBorder(),
-              hintText: 'Enter Amount'
-              ),
+              decoration: const InputDecoration(
+                  border: OutlineInputBorder(), hintText: 'Enter Amount'),
               keyboardType: TextInputType.number,
-              onChanged: (value) {
-                convert();
-              },
+              onChanged: (value) {},
             ),
           ),
           Expanded(
             child: ListView.builder(
-              itemCount: 1,
+              itemCount: currencies.length,
               itemBuilder: (context, index) {
                 return Padding(
                   padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
                   child: ListTile(
                     contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-                  //  minVerticalPadding: 10,
+                    //  minVerticalPadding: 10,
                     tileColor: Color.alphaBlend(
                         Theme.of(context).colorScheme.primary.withOpacity(0.08),
                         Theme.of(context).colorScheme.surface),
@@ -103,7 +81,8 @@ class _HomePageState extends ConsumerState<HomePage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text('Currency'),
-                        Expanded(child: TextField(
+                        Expanded(
+                            child: TextField(
                           textAlign: TextAlign.end,
                           controller: amountcontroller,
                           decoration: const InputDecoration(
