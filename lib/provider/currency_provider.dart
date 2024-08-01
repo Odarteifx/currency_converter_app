@@ -28,6 +28,11 @@ class CurrencyNotifier extends ChangeNotifier {
     }
     notifyListeners();
   }
+
+  void addCurrency(String code, String name, Currency currency){
+    currencieslist.add(CurrencyC(code: code, name: name, currency: currency));
+    notifyListeners();
+  }
 }
 
 final currencyProvider = ChangeNotifierProvider((ref) {

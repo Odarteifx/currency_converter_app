@@ -38,6 +38,7 @@ dependencies:
   currency_converter: ^2.0.0
   country_icons: ^3.0.0
   flutter_riverpod: ^2.5.1
+  currency_icons: ^0.3.0
 
 dev_dependencies:
   flutter_test:

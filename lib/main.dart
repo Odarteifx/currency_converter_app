@@ -1,8 +1,8 @@
 import 'package:currency_converter/currency.dart';
 import 'package:currency_converter_app/provider/currency_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:currency_converter/currency_converter.dart';
-import 'package:country_icons/country_icons.dart';
+// import 'package:currency_converter/currency_converter.dart';
+// import 'package:country_icons/country_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() {
@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Currency Converter',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
         useMaterial3: true,
       ),
       home: const HomePage(),
@@ -55,7 +55,6 @@ class _HomePageState extends ConsumerState<HomePage> {
     final convertedAmounts = currencyNotifier.convertedAmounts;
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(onPressed: () {}, icon: const Icon(Icons.add)),
         title: const Text('Converter'),
         actions: [IconButton(onPressed: () {}, icon: const Icon(Icons.edit))],
       ),
@@ -90,8 +89,8 @@ class _HomePageState extends ConsumerState<HomePage> {
                         Theme.of(context).colorScheme.surface),
                     leading: Image.asset(
                       width: 35,
-                      'icons/flags/png100px/${currency.code}.png',
-                      package: 'country_icons',
+                    'icons/currency/${currency.code}.png',
+                      package: 'currency_icons',
                     ),
                     title: Row(
                       children: [
@@ -110,6 +109,40 @@ class _HomePageState extends ConsumerState<HomePage> {
             ),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: (){
+         showDialog(context: context, builder:(context) {
+          final TextEditingController codeController = TextEditingController();
+          final TextEditingController nameController = TextEditingController();
+          final TextEditingController currencyController = TextEditingController(); 
+            return  AlertDialog(
+              title: const Center(child: Text('Add Currency')),
+              content:  SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: codeController,
+                    ),
+                    TextField(
+                      controller: nameController,
+                      
+                    ),
+                    TextField(
+                      controller: currencyController,
+                    )
+                  ],
+                ),
+              ),
+              actions: [ TextButton(onPressed: (){
+                ref.read(currencyProvider).addCurrency( codeController.text, nameController.text, Currency.btc);
+              }, child: const Text('Add'))],
+            );
+          },);
+      }, 
+      icon: const Icon(Icons.add),
+      label: const Text('Add Currency')
       ),
     );
   }
