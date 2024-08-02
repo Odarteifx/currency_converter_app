@@ -1,8 +1,6 @@
 import 'package:currency_converter/currency.dart';
 import 'package:currency_converter_app/provider/currency_provider.dart';
 import 'package:flutter/material.dart';
-// import 'package:currency_converter/currency_converter.dart';
-// import 'package:country_icons/country_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() {
@@ -89,7 +87,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                         Theme.of(context).colorScheme.surface),
                     leading: Image.asset(
                       width: 35,
-                    'icons/currency/${currency.code}.png',
+                      'icons/currency/${currency.code}.png',
                       package: 'currency_icons',
                     ),
                     title: Row(
@@ -111,39 +109,72 @@ class _HomePageState extends ConsumerState<HomePage> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: (){
-         showDialog(context: context, builder:(context) {
-          final TextEditingController codeController = TextEditingController();
-          final TextEditingController nameController = TextEditingController();
-          final TextEditingController currencyController = TextEditingController(); 
-            return  AlertDialog(
-              title: const Center(child: Text('Add Currency')),
-              content:  SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextField(
-                      controller: codeController,
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (context) {
+                Currency selectedCurrency = Currency.aave;
+                return AlertDialog(
+                  title: const Center(child: Text('Add Currency')),
+                  content: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // TextField(
+                        //   controller: codeController,
+                        //   maxLength: 3,
+                        // ),
+                        // TextField(
+                        //   controller: currencyController,
+                        // )
+                        DropdownButton<Currency>(
+                          value: selectedCurrency,
+                          onChanged: (Currency? newValue) {
+                            if (newValue != null) {
+                              selectedCurrency = newValue;
+                            }
+                          },
+                          items: Currency.values
+                              .map<DropdownMenuItem<Currency>>(
+                                  (Currency value) {
+                            return DropdownMenuItem<Currency>(
+                              value: value,
+                              child: Text(value
+                                  .toString()
+                                  .split('.')
+                                  .last
+                                  .toUpperCase()),
+                            );
+                          }).toList(),
+                        ),
+                      ],
                     ),
-                    TextField(
-                      controller: nameController,
-                      
-                    ),
-                    TextField(
-                      controller: currencyController,
-                    )
+                  ),
+                  actions: [
+                    TextButton(
+                        onPressed: () {
+                          ref.read(currencyProvider).addCurrency(
+                              selectedCurrency
+                                  .toString()
+                                  .split('.')
+                                  .last
+                                  .toLowerCase(),
+                              selectedCurrency
+                                  .toString()
+                                  .split('.')
+                                  .last
+                                  .toUpperCase(),
+                              selectedCurrency);
+                          Navigator.pop(context);
+                        },
+                        child: const Text('Add'))
                   ],
-                ),
-              ),
-              actions: [ TextButton(onPressed: (){
-                ref.read(currencyProvider).addCurrency( codeController.text, nameController.text, Currency.btc);
-              }, child: const Text('Add'))],
+                );
+              },
             );
-          },);
-      }, 
-      icon: const Icon(Icons.add),
-      label: const Text('Add Currency')
-      ),
+          },
+          icon: const Icon(Icons.add),
+          label: const Text('Add Currency')),
     );
   }
 }
