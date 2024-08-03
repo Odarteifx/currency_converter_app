@@ -51,7 +51,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     final currencyNotifier = ref.watch(currencyProvider);
     final currencies = currencyNotifier.currencieslist;
     final convertedAmounts = currencyNotifier.convertedAmounts;
-    Currency convertCurrency = Currency.usd;
+    Currency convertCurrency = currencyNotifier.convertCurrency;
     String convertCurrencyText =
         convertCurrency.toString().split('.').last.toLowerCase();
 
@@ -90,9 +90,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                       }).toList(),
                       onChanged: (Currency? newValue) {
                         if (newValue != null) {
-                          setState(() {
-                            convertCurrency = newValue;
-                          });
+                          ref.read(currencyProvider).updateConvertCurrency(newValue);
                         }
                       },
                     ),

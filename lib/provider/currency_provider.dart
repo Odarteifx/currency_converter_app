@@ -11,6 +11,14 @@ class CurrencyNotifier extends ChangeNotifier {
   final Map<String, double> _convertedAmounts = {};
   Map<String, double> get convertedAmounts => _convertedAmounts;
 
+  Currency _convertCurrency = Currency.ghs;
+  Currency get convertCurrency => _convertCurrency;
+
+  void updateConvertCurrency(Currency newCurrency) {
+    _convertCurrency = newCurrency;
+    notifyListeners();
+  }
+
   void convert(double amount, Currency fromcurrency) async {
     //Currency myCurrency = await CurrencyConverter.getMyCurrency();
     try {
