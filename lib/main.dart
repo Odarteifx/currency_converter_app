@@ -51,6 +51,10 @@ class _HomePageState extends ConsumerState<HomePage> {
     final currencyNotifier = ref.watch(currencyProvider);
     final currencies = currencyNotifier.currencieslist;
     final convertedAmounts = currencyNotifier.convertedAmounts;
+    Currency convertCurrency = Currency.usd;
+    String convertCurrencyText =
+        convertCurrency.toString().split('.').last.toLowerCase();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Converter'),
@@ -59,52 +63,103 @@ class _HomePageState extends ConsumerState<HomePage> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(15, 15, 15, 15),
-            child: TextField(
-              controller: inputController,
-              decoration: const InputDecoration(
-                  border: OutlineInputBorder(), hintText: 'Enter Amount'),
-              keyboardType: TextInputType.number,
-              onChanged: (value) {
-                double amount = double.tryParse(value) ?? 0.0;
-                currencyNotifier.convert(amount, Currency.usd);
-              },
-            ),
-          ),
+              padding: const EdgeInsets.fromLTRB(15, 15, 15, 15),
+              child: ListTile(
+                tileColor: Color.alphaBlend(
+                    Theme.of(context)
+                        .colorScheme
+                        .primaryContainer
+                        .withOpacity(0.5),
+                    Theme.of(context).colorScheme.surfaceContainer),
+                leading: Image.asset(
+                  width: 35,
+                  'icons/currency/$convertCurrencyText.png',
+                  package: 'currency_icons',
+                ),
+                title: Row(
+                  children: [
+                    DropdownButton<Currency>(
+                      value: convertCurrency,
+                      items: Currency.values
+                          .map<DropdownMenuItem<Currency>>((Currency value) {
+                        return DropdownMenuItem<Currency>(
+                          value: value,
+                          child: Text(
+                              value.toString().split('.').last.toUpperCase()),
+                        );
+                      }).toList(),
+                      onChanged: (Currency? newValue) {
+                        if (newValue != null) {
+                          setState(() {
+                            convertCurrency = newValue;
+                          });
+                        }
+                      },
+                    ),
+                    //  const Expanded(child: SizedBox()),
+                    Expanded(
+                      child: TextField(
+                        textAlign: TextAlign.end,
+                        controller: inputController,
+                        decoration: const InputDecoration(
+                            border: InputBorder.none, hintText: 'Enter Amount'),
+                        keyboardType: TextInputType.number,
+                        onChanged: (value) {
+                          double amount = double.tryParse(value) ?? 0.0;
+                          currencyNotifier.convert(amount, convertCurrency);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              )),
           Expanded(
-            child: ListView.builder(
-              itemCount: currencies.length,
-              itemBuilder: (context, index) {
-                final currency = currencies[index];
-                final convertedAmount = convertedAmounts[currency.code] ?? 0.0;
-                return Padding(
-                  padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-                    //  minVerticalPadding: 10,
-                    tileColor: Color.alphaBlend(
-                        Theme.of(context).colorScheme.primary.withOpacity(0.08),
-                        Theme.of(context).colorScheme.surface),
-                    leading: Image.asset(
-                      width: 35,
-                      'icons/currency/${currency.code}.png',
-                      package: 'currency_icons',
-                    ),
-                    title: Row(
-                      children: [
-                        Text(currency.name),
-                        const Expanded(child: SizedBox()),
-                        Text(
-                          convertedAmount.toStringAsFixed(2),
-                        )
-                      ],
-                    ),
-                    trailing: IconButton(
-                        onPressed: () {}, icon: const Icon(Icons.more_vert)),
+            child: currencies.isEmpty
+                ? const Center(
+                    child: Text('No Currency',
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 18,
+                        )))
+                : ListView.builder(
+                    itemCount: currencies.length,
+                    itemBuilder: (context, index) {
+                      final currency = currencies[index];
+                      final convertedAmount =
+                          convertedAmounts[currency.code] ?? 0.0;
+                      return Padding(
+                        padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
+                        child: ListTile(
+                          contentPadding:
+                              const EdgeInsets.symmetric(horizontal: 10),
+                          //  minVerticalPadding: 10,
+                          tileColor: Color.alphaBlend(
+                              Theme.of(context)
+                                  .colorScheme
+                                  .primary
+                                  .withOpacity(0.08),
+                              Theme.of(context).colorScheme.surface),
+                          leading: Image.asset(
+                            width: 35,
+                            'icons/currency/${currency.code}.png',
+                            package: 'currency_icons',
+                          ),
+                          title: Row(
+                            children: [
+                              Text(currency.name),
+                              const Expanded(child: SizedBox()),
+                              Text(
+                                convertedAmount.toStringAsFixed(2),
+                              )
+                            ],
+                          ),
+                          trailing: IconButton(
+                              onPressed: () {},
+                              icon: const Icon(Icons.more_vert)),
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
           ),
         ],
       ),
@@ -114,62 +169,59 @@ class _HomePageState extends ConsumerState<HomePage> {
               context: context,
               builder: (context) {
                 Currency selectedCurrency = Currency.aave;
-                return AlertDialog(
-                  title: const Center(child: Text('Add Currency')),
-                  content: SingleChildScrollView(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // TextField(
-                        //   controller: codeController,
-                        //   maxLength: 3,
-                        // ),
-                        // TextField(
-                        //   controller: currencyController,
-                        // )
-                        DropdownButton<Currency>(
-                          value: selectedCurrency,
-                          onChanged: (Currency? newValue) {
-                            if (newValue != null) {
-                              selectedCurrency = newValue;
-                            }
-                          },
-                          items: Currency.values
-                              .map<DropdownMenuItem<Currency>>(
-                                  (Currency value) {
-                            return DropdownMenuItem<Currency>(
-                              value: value,
-                              child: Text(value
-                                  .toString()
-                                  .split('.')
-                                  .last
-                                  .toUpperCase()),
-                            );
-                          }).toList(),
-                        ),
-                      ],
+                return StatefulBuilder(builder: (context, setState) {
+                  return AlertDialog(
+                    title: const Center(child: Text('Add Currency')),
+                    content: SingleChildScrollView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          DropdownButton<Currency>(
+                            value: selectedCurrency,
+                            onChanged: (Currency? newValue) {
+                              if (newValue != null) {
+                                setState(() {
+                                  selectedCurrency = newValue;
+                                });
+                              }
+                            },
+                            items: Currency.values
+                                .map<DropdownMenuItem<Currency>>(
+                                    (Currency value) {
+                              return DropdownMenuItem<Currency>(
+                                value: value,
+                                child: Text(value
+                                    .toString()
+                                    .split('.')
+                                    .last
+                                    .toUpperCase()),
+                              );
+                            }).toList(),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  actions: [
-                    TextButton(
-                        onPressed: () {
-                          ref.read(currencyProvider).addCurrency(
-                              selectedCurrency
-                                  .toString()
-                                  .split('.')
-                                  .last
-                                  .toLowerCase(),
-                              selectedCurrency
-                                  .toString()
-                                  .split('.')
-                                  .last
-                                  .toUpperCase(),
-                              selectedCurrency);
-                          Navigator.pop(context);
-                        },
-                        child: const Text('Add'))
-                  ],
-                );
+                    actions: [
+                      TextButton(
+                          onPressed: () {
+                            ref.read(currencyProvider).addCurrency(
+                                selectedCurrency
+                                    .toString()
+                                    .split('.')
+                                    .last
+                                    .toLowerCase(),
+                                selectedCurrency
+                                    .toString()
+                                    .split('.')
+                                    .last
+                                    .toUpperCase(),
+                                selectedCurrency);
+                            Navigator.pop(context);
+                          },
+                          child: const Text('Add'))
+                    ],
+                  );
+                });
               },
             );
           },

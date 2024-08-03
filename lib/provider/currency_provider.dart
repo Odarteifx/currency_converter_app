@@ -8,7 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class CurrencyNotifier extends ChangeNotifier {
   List<CurrencyC> get currencieslist => currencies;
 
-  Map<String, double> _convertedAmounts = {};
+  final Map<String, double> _convertedAmounts = {};
   Map<String, double> get convertedAmounts => _convertedAmounts;
 
   void convert(double amount, Currency fromcurrency) async {
