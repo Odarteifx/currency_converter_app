@@ -33,7 +33,7 @@ class HomePage extends ConsumerStatefulWidget {
 
 class _HomePageState extends ConsumerState<HomePage> {
   late TextEditingController inputController;
-     bool edit = false;
+  bool edit = false;
 
   @override
   void initState() {
@@ -56,7 +56,6 @@ class _HomePageState extends ConsumerState<HomePage> {
     String convertCurrencyText =
         convertCurrency.toString().split('.').last.toLowerCase();
 
- 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Converter'),
@@ -141,7 +140,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                           padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
                           child: ListTile(
                               contentPadding:
-                                  const EdgeInsets.symmetric(horizontal: 10),
+                                  const EdgeInsets.symmetric(horizontal: 20),
                               //  minVerticalPadding: 10,
                               tileColor: Color.alphaBlend(
                                   Theme.of(context)
@@ -156,25 +155,40 @@ class _HomePageState extends ConsumerState<HomePage> {
                               ),
                               title: Row(
                                 children: [
-                                  Text(currency.name),
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(currency.name,),
+                                      Text(
+                                        AllCurrency.allCurrencyWithCountries[currency.code].toString(),
+                                        style: const TextStyle(fontSize: 11, color: Colors.grey, fontWeight: FontWeight.bold),
+                                        ),
+                                    ],
+                                  ),
                                   const Expanded(child: SizedBox()),
                                   Text(
                                     convertedAmount.toStringAsFixed(2),
                                   )
                                 ],
                               ),
-                              trailing: edit
+                             // subtitle: Text(AllCurrency.allCurrencyWithCountries[currency.code].toString()),
+                              trailing: edit && currencies.isNotEmpty
                                   ? IconButton(
                                       onPressed: () {
-                                        currencyNotifier.removeCurrency(index);
+                                        ref.read(currencyProvider).removeCurrency(index);
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(SnackBar(
+                                              backgroundColor: Colors.blue,
+                                                content: Center(
+                                                    child: Text(
+                                                        ' ${currency.name} has been removed'))));
                                       },
                                       icon: const Icon(
                                         Icons.delete,
                                         color: Colors.red,
                                       ))
-                                  : IconButton(
-                                      onPressed: () {},
-                                      icon: const Icon(Icons.more_vert))));
+                                  :  null ));
                     },
                   ),
           ),
