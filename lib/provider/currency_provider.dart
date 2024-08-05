@@ -41,6 +41,11 @@ class CurrencyNotifier extends ChangeNotifier {
     currencieslist.add(CurrencyC(code: code, name: name, currency: currency));
     notifyListeners();
   }
+
+  void removeCurrency(int index){
+    currencieslist.removeAt(index);
+    notifyListeners();
+  }
 }
 
 final currencyProvider = ChangeNotifierProvider((ref) {

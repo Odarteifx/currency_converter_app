@@ -33,6 +33,7 @@ class HomePage extends ConsumerStatefulWidget {
 
 class _HomePageState extends ConsumerState<HomePage> {
   late TextEditingController inputController;
+     bool edit = false;
 
   @override
   void initState() {
@@ -55,10 +56,19 @@ class _HomePageState extends ConsumerState<HomePage> {
     String convertCurrencyText =
         convertCurrency.toString().split('.').last.toLowerCase();
 
+ 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Converter'),
-        actions: [IconButton(onPressed: () {}, icon: const Icon(Icons.edit))],
+        actions: [
+          IconButton(
+              onPressed: () {
+                setState(() {
+                  edit = !edit;
+                });
+              },
+              icon: const Icon(Icons.edit))
+        ],
       ),
       body: Column(
         children: [
@@ -90,7 +100,9 @@ class _HomePageState extends ConsumerState<HomePage> {
                       }).toList(),
                       onChanged: (Currency? newValue) {
                         if (newValue != null) {
-                          ref.read(currencyProvider).updateConvertCurrency(newValue);
+                          ref
+                              .read(currencyProvider)
+                              .updateConvertCurrency(newValue);
                         }
                       },
                     ),
@@ -126,36 +138,43 @@ class _HomePageState extends ConsumerState<HomePage> {
                       final convertedAmount =
                           convertedAmounts[currency.code] ?? 0.0;
                       return Padding(
-                        padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
-                        child: ListTile(
-                          contentPadding:
-                              const EdgeInsets.symmetric(horizontal: 10),
-                          //  minVerticalPadding: 10,
-                          tileColor: Color.alphaBlend(
-                              Theme.of(context)
-                                  .colorScheme
-                                  .primary
-                                  .withOpacity(0.08),
-                              Theme.of(context).colorScheme.surface),
-                          leading: Image.asset(
-                            width: 35,
-                            'icons/currency/${currency.code}.png',
-                            package: 'currency_icons',
-                          ),
-                          title: Row(
-                            children: [
-                              Text(currency.name),
-                              const Expanded(child: SizedBox()),
-                              Text(
-                                convertedAmount.toStringAsFixed(2),
-                              )
-                            ],
-                          ),
-                          trailing: IconButton(
-                              onPressed: () {},
-                              icon: const Icon(Icons.more_vert)),
-                        ),
-                      );
+                          padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
+                          child: ListTile(
+                              contentPadding:
+                                  const EdgeInsets.symmetric(horizontal: 10),
+                              //  minVerticalPadding: 10,
+                              tileColor: Color.alphaBlend(
+                                  Theme.of(context)
+                                      .colorScheme
+                                      .primary
+                                      .withOpacity(0.08),
+                                  Theme.of(context).colorScheme.surface),
+                              leading: Image.asset(
+                                width: 35,
+                                'icons/currency/${currency.code}.png',
+                                package: 'currency_icons',
+                              ),
+                              title: Row(
+                                children: [
+                                  Text(currency.name),
+                                  const Expanded(child: SizedBox()),
+                                  Text(
+                                    convertedAmount.toStringAsFixed(2),
+                                  )
+                                ],
+                              ),
+                              trailing: edit
+                                  ? IconButton(
+                                      onPressed: () {
+                                        currencyNotifier.removeCurrency(index);
+                                      },
+                                      icon: const Icon(
+                                        Icons.delete,
+                                        color: Colors.red,
+                                      ))
+                                  : IconButton(
+                                      onPressed: () {},
+                                      icon: const Icon(Icons.more_vert))));
                     },
                   ),
           ),
