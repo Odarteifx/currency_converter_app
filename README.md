@@ -24,7 +24,7 @@ The Currency Converter App is a Flutter application that allows users to convert
    ```
    flutter pub get
    ```
-5.  Run the Application
+5.  Run the Application.
    ```
 flutter run
 ```
